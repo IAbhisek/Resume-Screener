@@ -10,35 +10,149 @@ from database import Database
 class ResumeScreeningApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Resume Screening Application")
-        self.root.geometry("800x600")
+        self.root.title("🚀 AI Resume Screening Hub")
+        self.root.geometry("1200x800")
         self.root.resizable(True, True)
+        
+        # Modern dark theme colors
+        self.colors = {
+            'bg_primary': '#0D1117',      # Dark background
+            'bg_secondary': '#161B22',    # Slightly lighter background
+            'bg_tertiary': '#21262D',     # Card background
+            'accent_primary': '#58A6FF',  # Blue accent
+            'accent_secondary': '#7C3AED', # Purple accent
+            'text_primary': '#F0F6FC',    # White text
+            'text_secondary': '#8B949E',  # Gray text
+            'success': '#238636',         # Green
+            'warning': '#D29922',         # Orange
+            'error': '#DA3633'            # Red
+        }
+        
+        # Configure root window
+        self.root.configure(bg=self.colors['bg_primary'])
+        
+        # Configure modern styles
+        self.setup_styles()
         
         self.db = Database()
         self.db.create_tables()
         
         self.setup_ui()
     
-    def setup_ui(self):
-        # Create main frames
-        self.top_frame = tk.Frame(self.root, pady=10)
-        self.top_frame.pack(fill=tk.X)
+    def setup_styles(self):
+        """Configure modern TTK styles"""
+        style = ttk.Style()
         
-        self.main_frame = tk.Frame(self.root)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        # Configure notebook style
+        style.theme_use('clam')
+        style.configure('Modern.TNotebook', background=self.colors['bg_primary'], borderwidth=0)
+        style.configure('Modern.TNotebook.Tab', 
+                       background=self.colors['bg_secondary'],
+                       foreground=self.colors['text_secondary'],
+                       padding=[20, 10],
+                       font=('Segoe UI', 11, 'bold'))
+        style.map('Modern.TNotebook.Tab',
+                 background=[('selected', self.colors['accent_primary'])],
+                 foreground=[('selected', self.colors['text_primary'])])
+        
+        # Configure treeview style
+        style.configure('Modern.Treeview',
+                       background=self.colors['bg_tertiary'],
+                       foreground=self.colors['text_primary'],
+                       fieldbackground=self.colors['bg_tertiary'],
+                       borderwidth=0,
+                       font=('Segoe UI', 10))
+        style.configure('Modern.Treeview.Heading',
+                       background=self.colors['bg_secondary'],
+                       foreground=self.colors['text_primary'],
+                       font=('Segoe UI', 11, 'bold'))
+        style.map('Modern.Treeview',
+                 background=[('selected', self.colors['accent_primary'])])
+    
+    def create_modern_button(self, parent, text, command, bg_color=None, width=15, height=2):
+        """Create a modern styled button"""
+        if bg_color is None:
+            bg_color = self.colors['accent_primary']
+        
+        btn = tk.Button(parent, text=text, command=command,
+                       bg=bg_color, fg=self.colors['text_primary'],
+                       font=('Segoe UI', 11, 'bold'),
+                       relief='flat', borderwidth=0,
+                       width=width, height=height,
+                       cursor='hand2')
+        
+        # Hover effects
+        def on_enter(e):
+            btn.configure(bg=self.lighten_color(bg_color))
+        def on_leave(e):
+            btn.configure(bg=bg_color)
+        
+        btn.bind('<Enter>', on_enter)
+        btn.bind('<Leave>', on_leave)
+        
+        return btn
+    
+    def lighten_color(self, color):
+        """Lighten a hex color for hover effects"""
+        # Simple color lightening
+        if color == self.colors['accent_primary']:
+            return '#6CB6FF'
+        elif color == self.colors['accent_secondary']:
+            return '#8C4AED'
+        elif color == self.colors['success']:
+            return '#2EA043'
+        elif color == self.colors['error']:
+            return '#F85149'
+        return color
+    
+    def create_modern_frame(self, parent, **kwargs):
+        """Create a modern styled frame"""
+        return tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1, **kwargs)
+    
+    def create_modern_label(self, parent, text, font_size=11, bold=False, color=None):
+        """Create a modern styled label"""
+        if color is None:
+            color = self.colors['text_primary']
+        
+        font_weight = 'bold' if bold else 'normal'
+        return tk.Label(parent, text=text,
+                       bg=self.colors['bg_tertiary'], fg=color,
+                       font=('Segoe UI', font_size, font_weight))
+    
+    def setup_ui(self):
+        # Create header
+        header_frame = tk.Frame(self.root, bg=self.colors['bg_primary'], height=80)
+        header_frame.pack(fill=tk.X, padx=20, pady=(20, 0))
+        header_frame.pack_propagate(False)
+        
+        # App title with icon
+        title_label = tk.Label(header_frame, text="🚀 AI Resume Screening Hub",
+                              bg=self.colors['bg_primary'], fg=self.colors['text_primary'],
+                              font=('Segoe UI', 24, 'bold'))
+        title_label.pack(side=tk.LEFT, pady=20)
+        
+        # Subtitle
+        subtitle_label = tk.Label(header_frame, text="Intelligent candidate screening powered by AI",
+                                 bg=self.colors['bg_primary'], fg=self.colors['text_secondary'],
+                                 font=('Segoe UI', 12))
+        subtitle_label.pack(side=tk.LEFT, padx=(20, 0), pady=20)
+        
+        # Main container
+        main_container = tk.Frame(self.root, bg=self.colors['bg_primary'])
+        main_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
         # Create notebook for tabs
-        self.notebook = ttk.Notebook(self.main_frame)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.notebook = ttk.Notebook(main_container, style='Modern.TNotebook')
+        self.notebook.pack(fill=tk.BOTH, expand=True)
         
-        # Create tabs
-        self.upload_tab = tk.Frame(self.notebook)
-        self.search_tab = tk.Frame(self.notebook)
-        self.keywords_tab = tk.Frame(self.notebook)
+        # Create tabs with modern frames
+        self.upload_tab = self.create_modern_frame(self.notebook)
+        self.search_tab = self.create_modern_frame(self.notebook)
+        self.keywords_tab = self.create_modern_frame(self.notebook)
         
-        self.notebook.add(self.upload_tab, text="Upload Resumes")
-        self.notebook.add(self.search_tab, text="Search Resumes")
-        self.notebook.add(self.keywords_tab, text="Manage Keywords")
+        self.notebook.add(self.upload_tab, text="📁 Upload Resumes")
+        self.notebook.add(self.search_tab, text="🔍 Search Resumes")
+        self.notebook.add(self.keywords_tab, text="⚙️ Manage Keywords")
         
         # Setup each tab
         self.setup_upload_tab()
@@ -46,129 +160,247 @@ class ResumeScreeningApp:
         self.setup_keywords_tab()
     
     def setup_upload_tab(self):
-        # Frame for upload controls
-        upload_frame = tk.Frame(self.upload_tab, pady=20)
-        upload_frame.pack(fill=tk.X)
+        # Header section
+        header_section = self.create_modern_frame(self.upload_tab)
+        header_section.pack(fill=tk.X, padx=30, pady=30)
         
-        # Upload button
-        upload_btn = tk.Button(upload_frame, text="Upload Resumes", command=self.upload_resumes, 
-                              width=15, height=2)
-        upload_btn.pack(pady=10)
+        # Title and description
+        title = self.create_modern_label(header_section, "📁 Upload & Process Resumes", 18, True)
+        title.pack(anchor='w', padx=20, pady=(20, 5))
         
-        # Status label
-        self.status_label = tk.Label(upload_frame, text="")
-        self.status_label.pack(pady=5)
+        desc = self.create_modern_label(header_section, "Upload resume files in PDF, DOCX, or TXT format for intelligent processing", 12, color=self.colors['text_secondary'])
+        desc.pack(anchor='w', padx=20, pady=(0, 20))
         
-        # Frame for resume list
-        list_frame = tk.Frame(self.upload_tab)
-        list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # Upload controls section
+        controls_section = self.create_modern_frame(self.upload_tab)
+        controls_section.pack(fill=tk.X, padx=30, pady=(0, 20))
         
-        # Scrollbar and Listbox for uploaded resumes
-        scrollbar = tk.Scrollbar(list_frame)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # Upload button with modern styling
+        upload_btn = self.create_modern_button(controls_section, "📤 Upload Resumes", self.upload_resumes, width=20, height=2)
+        upload_btn.pack(pady=20)
         
-        self.resume_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, height=15)
+        # Status label with modern styling
+        self.status_label = self.create_modern_label(controls_section, "", color=self.colors['success'])
+        self.status_label.pack(pady=(0, 20))
+        
+        # Resume list section
+        list_section = self.create_modern_frame(self.upload_tab)
+        list_section.pack(fill=tk.BOTH, expand=True, padx=30, pady=(0, 30))
+        
+        # Section title
+        list_title = self.create_modern_label(list_section, "📋 Uploaded Resumes", 14, True)
+        list_title.pack(anchor='w', padx=20, pady=(20, 10))
+        
+        # Listbox container
+        listbox_container = tk.Frame(list_section, bg=self.colors['bg_tertiary'])
+        listbox_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
+        
+        # Modern scrollbar and listbox
+        scrollbar = tk.Scrollbar(listbox_container, bg=self.colors['bg_secondary'], troughcolor=self.colors['bg_primary'])
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
+        
+        self.resume_listbox = tk.Listbox(listbox_container, 
+                                        yscrollcommand=scrollbar.set,
+                                        bg=self.colors['bg_secondary'],
+                                        fg=self.colors['text_primary'],
+                                        selectbackground=self.colors['accent_primary'],
+                                        selectforeground=self.colors['text_primary'],
+                                        font=('Segoe UI', 11),
+                                        relief='flat',
+                                        borderwidth=0,
+                                        activestyle='none')
         self.resume_listbox.pack(fill=tk.BOTH, expand=True)
         scrollbar.config(command=self.resume_listbox.yview)
         
-        # Bind double-click event to view resume
+        # Bind double-click event
         self.resume_listbox.bind('<Double-1>', self.view_resume_details)
         
         # Load existing resumes
         self.load_resumes()
     
     def setup_search_tab(self):
-        # Search controls frame
-        search_controls = tk.Frame(self.search_tab, pady=20)
-        search_controls.pack(fill=tk.X)
+        # Header section
+        header_section = self.create_modern_frame(self.search_tab)
+        header_section.pack(fill=tk.X, padx=30, pady=30)
         
-        # Search entry
-        tk.Label(search_controls, text="Search Keywords:").pack(side=tk.LEFT, padx=5)
-        self.search_entry = tk.Entry(search_controls, width=40)
-        self.search_entry.pack(side=tk.LEFT, padx=5)
+        # Title and description
+        title = self.create_modern_label(header_section, "🔍 Smart Resume Search", 18, True)
+        title.pack(anchor='w', padx=20, pady=(20, 5))
         
-        # Search button
-        search_btn = tk.Button(search_controls, text="Search", command=self.search_resumes, width=10)
-        search_btn.pack(side=tk.LEFT, padx=5)
+        desc = self.create_modern_label(header_section, "Search through resumes using AI-powered keyword matching and relevance scoring", 12, color=self.colors['text_secondary'])
+        desc.pack(anchor='w', padx=20, pady=(0, 20))
         
-        # Results frame
-        results_frame = tk.Frame(self.search_tab)
-        results_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # Search controls section
+        search_section = self.create_modern_frame(self.search_tab)
+        search_section.pack(fill=tk.X, padx=30, pady=(0, 20))
         
-        # Create treeview for search results
+        # Search container
+        search_container = tk.Frame(search_section, bg=self.colors['bg_tertiary'])
+        search_container.pack(fill=tk.X, padx=20, pady=20)
+        
+        # Search label
+        search_label = self.create_modern_label(search_container, "🔎 Enter Keywords (comma-separated):", 12, True)
+        search_label.pack(anchor='w', pady=(0, 10))
+        
+        # Search input frame
+        input_frame = tk.Frame(search_container, bg=self.colors['bg_tertiary'])
+        input_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        # Modern search entry
+        self.search_entry = tk.Entry(input_frame,
+                                    bg=self.colors['bg_secondary'],
+                                    fg=self.colors['text_primary'],
+                                    font=('Segoe UI', 12),
+                                    relief='flat',
+                                    borderwidth=2,
+                                    insertbackground=self.colors['text_primary'])
+        self.search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=8, padx=(0, 10))
+        
+        # Modern search button
+        search_btn = self.create_modern_button(input_frame, "🚀 Search", self.search_resumes, width=12, height=1)
+        search_btn.pack(side=tk.RIGHT)
+        
+        # Results section
+        results_section = self.create_modern_frame(self.search_tab)
+        results_section.pack(fill=tk.BOTH, expand=True, padx=30, pady=(0, 30))
+        
+        # Results title
+        results_title = self.create_modern_label(results_section, "📊 Search Results", 14, True)
+        results_title.pack(anchor='w', padx=20, pady=(20, 10))
+        
+        # Treeview container
+        tree_container = tk.Frame(results_section, bg=self.colors['bg_tertiary'])
+        tree_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
+        
+        # Create modern treeview
         columns = ("id", "name", "email", "phone", "score")
-        self.results_tree = ttk.Treeview(results_frame, columns=columns, show="headings")
+        self.results_tree = ttk.Treeview(tree_container, columns=columns, show="headings", style='Modern.Treeview')
         
-        # Define headings
-        self.results_tree.heading("id", text="ID")
-        self.results_tree.heading("name", text="Name")
-        self.results_tree.heading("email", text="Email")
-        self.results_tree.heading("phone", text="Phone")
-        self.results_tree.heading("score", text="Match Score")
+        # Define headings with icons
+        self.results_tree.heading("id", text="🆔 ID")
+        self.results_tree.heading("name", text="👤 Name")
+        self.results_tree.heading("email", text="📧 Email")
+        self.results_tree.heading("phone", text="📱 Phone")
+        self.results_tree.heading("score", text="⭐ Score")
         
         # Define columns width
-        self.results_tree.column("id", width=50)
-        self.results_tree.column("name", width=150)
-        self.results_tree.column("email", width=200)
+        self.results_tree.column("id", width=80)
+        self.results_tree.column("name", width=180)
+        self.results_tree.column("email", width=250)
         self.results_tree.column("phone", width=150)
-        self.results_tree.column("score", width=100)
+        self.results_tree.column("score", width=120)
         
-        # Add scrollbar
-        scrollbar = tk.Scrollbar(results_frame, orient=tk.VERTICAL, command=self.results_tree.yview)
+        # Add modern scrollbar
+        scrollbar = tk.Scrollbar(tree_container, orient=tk.VERTICAL, command=self.results_tree.yview,
+                               bg=self.colors['bg_secondary'], troughcolor=self.colors['bg_primary'])
         self.results_tree.configure(yscroll=scrollbar.set)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
         self.results_tree.pack(fill=tk.BOTH, expand=True)
         
-        # Bind double-click event to view resume
+        # Bind double-click event
         self.results_tree.bind('<Double-1>', self.view_search_result)
     
     def setup_keywords_tab(self):
-        # Keywords management frame
-        keywords_frame = tk.Frame(self.keywords_tab, pady=20)
-        keywords_frame.pack(fill=tk.X)
+        # Header section
+        header_section = self.create_modern_frame(self.keywords_tab)
+        header_section.pack(fill=tk.X, padx=30, pady=30)
         
-        # Keyword entry
-        tk.Label(keywords_frame, text="Keyword:").pack(side=tk.LEFT, padx=5)
-        self.keyword_entry = tk.Entry(keywords_frame, width=30)
-        self.keyword_entry.pack(side=tk.LEFT, padx=5)
+        # Title and description
+        title = self.create_modern_label(header_section, "⚙️ Keyword Management", 18, True)
+        title.pack(anchor='w', padx=20, pady=(20, 5))
         
-        # Weight entry
-        tk.Label(keywords_frame, text="Weight (1-10):").pack(side=tk.LEFT, padx=5)
-        self.weight_entry = tk.Entry(keywords_frame, width=5)
-        self.weight_entry.pack(side=tk.LEFT, padx=5)
+        desc = self.create_modern_label(header_section, "Define and manage keywords with custom weights for intelligent resume screening", 12, color=self.colors['text_secondary'])
+        desc.pack(anchor='w', padx=20, pady=(0, 20))
+        
+        # Add keyword section
+        add_section = self.create_modern_frame(self.keywords_tab)
+        add_section.pack(fill=tk.X, padx=30, pady=(0, 20))
+        
+        # Add keyword container
+        add_container = tk.Frame(add_section, bg=self.colors['bg_tertiary'])
+        add_container.pack(fill=tk.X, padx=20, pady=20)
+        
+        # Add keyword title
+        add_title = self.create_modern_label(add_container, "➕ Add New Keyword", 14, True)
+        add_title.pack(anchor='w', pady=(0, 15))
+        
+        # Input frame
+        input_frame = tk.Frame(add_container, bg=self.colors['bg_tertiary'])
+        input_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        # Keyword input
+        keyword_label = self.create_modern_label(input_frame, "🏷️ Keyword:", 11, True)
+        keyword_label.pack(anchor='w', pady=(0, 5))
+        
+        self.keyword_entry = tk.Entry(input_frame,
+                                     bg=self.colors['bg_secondary'],
+                                     fg=self.colors['text_primary'],
+                                     font=('Segoe UI', 11),
+                                     relief='flat',
+                                     borderwidth=2,
+                                     insertbackground=self.colors['text_primary'])
+        self.keyword_entry.pack(fill=tk.X, ipady=6, pady=(0, 15))
+        
+        # Weight input
+        weight_label = self.create_modern_label(input_frame, "⚖️ Weight (1-10):", 11, True)
+        weight_label.pack(anchor='w', pady=(0, 5))
+        
+        self.weight_entry = tk.Entry(input_frame,
+                                    bg=self.colors['bg_secondary'],
+                                    fg=self.colors['text_primary'],
+                                    font=('Segoe UI', 11),
+                                    relief='flat',
+                                    borderwidth=2,
+                                    width=10,
+                                    insertbackground=self.colors['text_primary'])
+        self.weight_entry.pack(anchor='w', ipady=6, pady=(0, 15))
         self.weight_entry.insert(0, "5")
         
+        # Buttons frame
+        buttons_frame = tk.Frame(input_frame, bg=self.colors['bg_tertiary'])
+        buttons_frame.pack(fill=tk.X)
+        
         # Add button
-        add_btn = tk.Button(keywords_frame, text="Add Keyword", command=self.add_keyword, width=12)
-        add_btn.pack(side=tk.LEFT, padx=5)
+        add_btn = self.create_modern_button(buttons_frame, "✅ Add Keyword", self.add_keyword, width=15, height=1)
+        add_btn.pack(side=tk.LEFT)
         
-        # Keywords list frame
-        list_frame = tk.Frame(self.keywords_tab)
-        list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # Keywords list section
+        list_section = self.create_modern_frame(self.keywords_tab)
+        list_section.pack(fill=tk.BOTH, expand=True, padx=30, pady=(0, 30))
         
-        # Create treeview for keywords
+        # List title
+        list_title = self.create_modern_label(list_section, "📝 Current Keywords", 14, True)
+        list_title.pack(anchor='w', padx=20, pady=(20, 10))
+        
+        # Treeview container
+        tree_container = tk.Frame(list_section, bg=self.colors['bg_tertiary'])
+        tree_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
+        
+        # Create modern treeview for keywords
         columns = ("id", "keyword", "weight")
-        self.keywords_tree = ttk.Treeview(list_frame, columns=columns, show="headings")
+        self.keywords_tree = ttk.Treeview(tree_container, columns=columns, show="headings", style='Modern.Treeview')
         
-        # Define headings
-        self.keywords_tree.heading("id", text="ID")
-        self.keywords_tree.heading("keyword", text="Keyword")
-        self.keywords_tree.heading("weight", text="Weight")
+        # Define headings with icons
+        self.keywords_tree.heading("id", text="🆔 ID")
+        self.keywords_tree.heading("keyword", text="🏷️ Keyword")
+        self.keywords_tree.heading("weight", text="⚖️ Weight")
         
         # Define columns width
-        self.keywords_tree.column("id", width=50)
-        self.keywords_tree.column("keyword", width=300)
-        self.keywords_tree.column("weight", width=100)
+        self.keywords_tree.column("id", width=80)
+        self.keywords_tree.column("keyword", width=400)
+        self.keywords_tree.column("weight", width=120)
         
-        # Add scrollbar
-        scrollbar = tk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.keywords_tree.yview)
+        # Add modern scrollbar
+        scrollbar = tk.Scrollbar(tree_container, orient=tk.VERTICAL, command=self.keywords_tree.yview,
+                               bg=self.colors['bg_secondary'], troughcolor=self.colors['bg_primary'])
         self.keywords_tree.configure(yscroll=scrollbar.set)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
         self.keywords_tree.pack(fill=tk.BOTH, expand=True)
         
         # Delete button
-        delete_btn = tk.Button(list_frame, text="Delete Selected", command=self.delete_keyword)
-        delete_btn.pack(pady=10)
+        delete_btn = self.create_modern_button(tree_container, "🗑️ Delete Selected", self.delete_keyword, 
+                                              bg_color=self.colors['error'], width=18, height=1)
+        delete_btn.pack(pady=15)
         
         # Load existing keywords
         self.load_keywords()
