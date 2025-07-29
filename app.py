@@ -119,6 +119,148 @@ class ResumeScreeningApp:
                        bg=self.colors['bg_tertiary'], fg=color,
                        font=('Segoe UI', font_size, font_weight))
     
+    def show_modern_error(self, title, message):
+        """Show a modern error dialog"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title(f"❌ {title}")
+        dialog.geometry("400x200")
+        dialog.configure(bg=self.colors['bg_primary'])
+        dialog.resizable(False, False)
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        # Center the dialog
+        dialog.geometry("+%d+%d" % (self.root.winfo_rootx() + 50, self.root.winfo_rooty() + 50))
+        
+        # Content frame
+        content = self.create_modern_frame(dialog)
+        content.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Error icon and title
+        title_label = self.create_modern_label(content, f"❌ {title}", 16, True, self.colors['error'])
+        title_label.pack(pady=(20, 10))
+        
+        # Message
+        msg_label = self.create_modern_label(content, message, 11, color=self.colors['text_secondary'])
+        msg_label.pack(pady=(0, 20))
+        
+        # OK button
+        ok_btn = self.create_modern_button(content, "OK", dialog.destroy, self.colors['error'], 10, 1)
+        ok_btn.pack(pady=10)
+        
+        dialog.wait_window()
+    
+    def show_modern_success(self, title, message):
+        """Show a modern success dialog"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title(f"✅ {title}")
+        dialog.geometry("400x200")
+        dialog.configure(bg=self.colors['bg_primary'])
+        dialog.resizable(False, False)
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        # Center the dialog
+        dialog.geometry("+%d+%d" % (self.root.winfo_rootx() + 50, self.root.winfo_rooty() + 50))
+        
+        # Content frame
+        content = self.create_modern_frame(dialog)
+        content.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Success icon and title
+        title_label = self.create_modern_label(content, f"✅ {title}", 16, True, self.colors['success'])
+        title_label.pack(pady=(20, 10))
+        
+        # Message
+        msg_label = self.create_modern_label(content, message, 11, color=self.colors['text_secondary'])
+        msg_label.pack(pady=(0, 20))
+        
+        # OK button
+        ok_btn = self.create_modern_button(content, "OK", dialog.destroy, self.colors['success'], 10, 1)
+        ok_btn.pack(pady=10)
+        
+        dialog.wait_window()
+    
+    def show_modern_warning(self, title, message):
+        """Show a modern warning dialog"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title(f"⚠️ {title}")
+        dialog.geometry("400x200")
+        dialog.configure(bg=self.colors['bg_primary'])
+        dialog.resizable(False, False)
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        # Center the dialog
+        dialog.geometry("+%d+%d" % (self.root.winfo_rootx() + 50, self.root.winfo_rooty() + 50))
+        
+        # Content frame
+        content = self.create_modern_frame(dialog)
+        content.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Warning icon and title
+        title_label = self.create_modern_label(content, f"⚠️ {title}", 16, True, self.colors['warning'])
+        title_label.pack(pady=(20, 10))
+        
+        # Message
+        msg_label = self.create_modern_label(content, message, 11, color=self.colors['text_secondary'])
+        msg_label.pack(pady=(0, 20))
+        
+        # OK button
+        ok_btn = self.create_modern_button(content, "OK", dialog.destroy, self.colors['warning'], 10, 1)
+        ok_btn.pack(pady=10)
+        
+        dialog.wait_window()
+    
+    def show_modern_confirm(self, title, message):
+        """Show a modern confirmation dialog"""
+        result = [False]  # Use list to modify from nested function
+        
+        dialog = tk.Toplevel(self.root)
+        dialog.title(f"❓ {title}")
+        dialog.geometry("450x220")
+        dialog.configure(bg=self.colors['bg_primary'])
+        dialog.resizable(False, False)
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        # Center the dialog
+        dialog.geometry("+%d+%d" % (self.root.winfo_rootx() + 50, self.root.winfo_rooty() + 50))
+        
+        def on_yes():
+            result[0] = True
+            dialog.destroy()
+        
+        def on_no():
+            result[0] = False
+            dialog.destroy()
+        
+        # Content frame
+        content = self.create_modern_frame(dialog)
+        content.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Question icon and title
+        title_label = self.create_modern_label(content, f"❓ {title}", 16, True, self.colors['accent_primary'])
+        title_label.pack(pady=(20, 10))
+        
+        # Message
+        msg_label = self.create_modern_label(content, message, 11, color=self.colors['text_secondary'])
+        msg_label.pack(pady=(0, 20))
+        
+        # Buttons frame
+        buttons_frame = tk.Frame(content, bg=self.colors['bg_tertiary'])
+        buttons_frame.pack(pady=10)
+        
+        # Yes and No buttons
+        yes_btn = self.create_modern_button(buttons_frame, "✅ Yes", on_yes, self.colors['success'], 10, 1)
+        yes_btn.pack(side=tk.LEFT, padx=(0, 10))
+        
+        no_btn = self.create_modern_button(buttons_frame, "❌ No", on_no, self.colors['error'], 10, 1)
+        no_btn.pack(side=tk.LEFT)
+        
+        dialog.wait_window()
+        return result[0]
+    
     def setup_ui(self):
         # Create header
         header_frame = tk.Frame(self.root, bg=self.colors['bg_primary'], height=80)
@@ -415,11 +557,12 @@ class ResumeScreeningApp:
         ]
         
         filenames = filedialog.askopenfilenames(
-            title="Select Resume Files",
+            title="🚀 Select Resume Files - AI Resume Screening Hub",
             filetypes=filetypes
         )
         
         if not filenames:
+            self.status_label.config(text="⚠️ No files selected", fg=self.colors['warning'])
             return
         
         processed = 0
@@ -441,13 +584,14 @@ class ResumeScreeningApp:
                 
                 processed += 1
                 
-                # Add to listbox
-                self.resume_listbox.insert(tk.END, f"{name} - {email}")
-                
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to process {os.path.basename(filename)}: {str(e)}")
+                self.show_modern_error("Processing Error", f"Failed to process {os.path.basename(filename)}: {str(e)}")
         
-        self.status_label.config(text=f"Successfully processed {processed} resume(s)")
+        if processed > 0:
+            self.status_label.config(text=f"✅ Successfully processed {processed} resume(s)", fg=self.colors['success'])
+            self.load_resumes()
+        else:
+            self.status_label.config(text="❌ No resumes were processed", fg=self.colors['error'])
     
     def extract_text(self, filename):
         file_ext = os.path.splitext(filename)[1].lower()
