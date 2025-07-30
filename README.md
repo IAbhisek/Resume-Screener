@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Resume Screening Application
 
 A Python application that helps you screen and search through resumes based on keywords and skills.
@@ -65,6 +64,7 @@ python app.py
 ## Database
 
 The application uses SQLite to store:
+
 - Resume information and content
 - Keywords and their weights
 - Keyword matches for each resume
@@ -73,8 +73,12 @@ The database file (resume_screening.db) is created in the application directory.
 
 ## License
 
-This project is open source and available under the MIT License.
-=======
-# Resume-Screener
-A Basic Python based Resume Screening App which takes resume and extracts all the information from it.
->>>>>>> 6370d4dc945f3bda699b89446fe2cd44b3a81d71
+This project is open source under the MIT License.
+
+## Author
+
+**Abhishek Singh**
+
+- GitHub: [github.com/IAbhisek](https://github.com/IAbhisek)
+- Email: Abhishek.s.dev23@gmail.com
+- LinkedIn: [linkedin.com/in/abhishek-singh-EC](https://www.linkedin.com/in/abhishek-singh-803011239/)
