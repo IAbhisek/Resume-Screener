@@ -171,6 +171,19 @@ class Database:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
+    def delete_resume(self, resume_id):
+        """Delete a resume and its keyword matches from the database"""
+        try:
+            # First delete keyword matches
+            self.cursor.execute("DELETE FROM keyword_matches WHERE resume_id = ?", (resume_id,))
+            # Then delete the resume
+            self.cursor.execute("DELETE FROM resumes WHERE id = ?", (resume_id,))
+            self.conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"Error deleting resume: {e}")
+            return False
+    
     def __del__(self):
         """Close the database connection when the object is destroyed"""
         if hasattr(self, 'conn'):

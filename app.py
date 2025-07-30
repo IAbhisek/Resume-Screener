@@ -10,7 +10,7 @@ from database import Database
 class ResumeScreeningApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("🚀 AI Resume Screening Hub - Professional Edition")
+        self.root.title("AI Resume Screener By Abhishek")
         self.root.geometry("1400x900")
         self.root.resizable(True, True)
         
@@ -25,20 +25,20 @@ class ResumeScreeningApp:
         
         # Enhanced modern dark theme colors
         self.colors = {
-            'bg_primary': '#0D1117',      # Dark background
-            'bg_secondary': '#161B22',    # Slightly lighter background
-            'bg_tertiary': '#21262D',     # Card background
-            'accent_primary': '#58A6FF',  # Blue accent
-            'accent_secondary': '#7C3AED', # Purple accent
-            'text_primary': '#F0F6FC',    # White text
-            'text_secondary': '#8B949E',  # Gray text
-            'success': '#238636',         # Green
-            'warning': '#D29922',         # Orange
-            'error': '#DA3633',           # Red
-            'hover_bg': '#30363D',        # Hover background
-            'border': '#30363D',          # Border color
-            'gradient_start': '#1F2937',  # Gradient start
-            'gradient_end': '#111827'     # Gradient end
+            'bg_primary': "#00030B", # Dark background
+            'bg_secondary': '#161B22',# Card background
+            'bg_tertiary': '#21262D',# Blue accent
+            'accent_primary': "#3B44F6",    # New blue
+            'accent_secondary': '#8B5CF6',  # New purple
+            'text_primary': '#F0F6FC',
+            'text_secondary': '#8B949E',
+            'success': '#4ADE80',           # Bright green
+            'warning': '#FACC15',           # Bright yellow
+            'error': '#F87171',             # Soft red
+            'hover_bg': '#30363D',
+            'border': '#30363D',
+            'gradient_start': '#1F2937',
+            'gradient_end': '#111827',   # Gradient end
         }
         
         # Configure root window with enhanced styling
@@ -67,7 +67,7 @@ class ResumeScreeningApp:
                        foreground=self.colors['text_secondary'],
                        padding=[20, 10],
                        font=('Segoe UI', 11, 'bold'))
-        style.map('Modern.TNotebook.Tab',
+        style.map('Modern.TNotebook.Tab',  # Note the comma was incorrect here
                  background=[('selected', self.colors['accent_primary'])],
                  foreground=[('selected', self.colors['text_primary'])])
         
@@ -154,7 +154,7 @@ class ResumeScreeningApp:
         
         # Error icon and title
         title_label = self.create_modern_label(content, f"❌ {title}", 16, True, self.colors['error'])
-        title_label.pack(pady=(20, 10))
+        title_label.pack(pady=(15, 0))
         
         # Message
         msg_label = self.create_modern_label(content, message, 11, color=self.colors['text_secondary'])
@@ -279,7 +279,7 @@ class ResumeScreeningApp:
     
     def setup_ui(self):
         # Create enhanced header with gradient-like effect
-        header_frame = tk.Frame(self.root, bg=self.colors['bg_primary'], height=100)
+        header_frame = tk.Frame(self.root, bg=self.colors['bg_primary'], height=120)  # Increased height
         header_frame.pack(fill=tk.X, padx=25, pady=(25, 0))
         header_frame.pack_propagate(False)
         
@@ -288,16 +288,16 @@ class ResumeScreeningApp:
         title_section.pack(side=tk.LEFT, fill=tk.Y)
         
         # App title with enhanced styling
-        title_label = tk.Label(title_section, text="🚀 AI RESUME SCREENING HUB",
+        title_label = tk.Label(title_section, text=" AI RESUME SCREENING SYSTEM",
                               bg=self.colors['bg_primary'], fg=self.colors['accent_primary'],
                               font=('Segoe UI', 28, 'bold'))
-        title_label.pack(anchor='w', pady=(25, 5))
+        title_label.pack(anchor='w', pady=(20, 2))  # Reduced top padding
         
         # Enhanced subtitle with version info
-        subtitle_label = tk.Label(title_section, text="Intelligent Candidate Screening Platform v2.0 | Powered by Advanced AI",
+        subtitle_label = tk.Label(title_section, text="Intelligent Resume Screening Platform v1.0",
                                  bg=self.colors['bg_primary'], fg=self.colors['text_secondary'],
-                                 font=('Segoe UI', 13, 'italic'))
-        subtitle_label.pack(anchor='w')
+                                 font=('Segoe UI', 13, 'bold'))
+        subtitle_label.pack(anchor='w', pady=(0, 10))  # Added bottom padding
         
         # Status indicator section
         status_section = tk.Frame(header_frame, bg=self.colors['bg_primary'])
@@ -352,8 +352,15 @@ class ResumeScreeningApp:
         controls_section.pack(fill=tk.X, padx=30, pady=(0, 20))
         
         # Upload button with modern styling
-        upload_btn = self.create_modern_button(controls_section, "📤 Upload Resumes", self.upload_resumes, width=20, height=2)
-        upload_btn.pack(pady=20)
+        button_frame = tk.Frame(controls_section, bg=self.colors['bg_tertiary'])
+        button_frame.pack(pady=20)
+        
+        upload_btn = self.create_modern_button(button_frame, "📤 Upload Resumes", self.upload_resumes, width=20, height=2)
+        upload_btn.pack(side=tk.LEFT, padx=5)
+        
+        delete_btn = self.create_modern_button(button_frame, "🗑️ Delete Resume", self.delete_resume, 
+                                             bg_color=self.colors['error'], width=20, height=2)
+        delete_btn.pack(side=tk.LEFT, padx=5)
         
         # Status label with modern styling
         self.status_label = self.create_modern_label(controls_section, "", color=self.colors['success'])
@@ -944,6 +951,37 @@ class ResumeScreeningApp:
             self.keywords_tree.delete(item)
             
             self.show_modern_success("✅ Keyword Deleted", f"Keyword '{keyword_text}' deleted successfully!")
+    
+    def delete_resume(self):
+        """Delete selected resume"""
+        # Get selected resume
+        selection = self.resume_listbox.curselection()
+        if not selection:
+            self.show_modern_warning("⚠️ Selection Required", "Please select a resume to delete.")
+            return
+        
+        index = selection[0]
+        
+        # Get resume from database
+        resumes = self.db.get_all_resumes()
+        if index >= len(resumes):
+            return
+        
+        resume = resumes[index]
+        resume_id, filename, name, email, phone, _ = resume
+        
+        # Confirm deletion
+        if self.show_modern_confirm("🗑️ Confirm Deletion", 
+                                  f"Are you sure you want to delete the resume for {name}?\nThis action cannot be undone."):
+            # Delete from database
+            if self.db.delete_resume(resume_id):
+                # Update listbox
+                self.load_resumes()
+                self.show_modern_success("✅ Resume Deleted", 
+                                       f"Resume for {name} has been successfully deleted.")
+            else:
+                self.show_modern_error("❌ Deletion Error", 
+                                     f"Failed to delete resume for {name}.")
     
     def load_keywords(self):
         # Clear treeview

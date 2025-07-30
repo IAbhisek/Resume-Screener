@@ -8,14 +8,16 @@ setup(
         "PyPDF2>=3.0.0",
         "docx2txt>=0.8",
         "python-docx>=0.8.11",
+        "tkinter",  # Added missing dependency
+        "sqlite3",  # Added missing dependency
     ],
     entry_points={
         'console_scripts': [
             'resume-screening=app:main',
         ],
     },
-    author="Resume Screening App",
-    author_email="example@example.com",
+    author="Abhishek Singh",  # Fixed spelling
+    author_email="Abhishek.s.dev23@gmail.com",
     description="A resume screening application to help filter and search through resumes",
     keywords="resume, screening, hr, recruitment",
     python_requires=">=3.6",
