@@ -10,11 +10,20 @@ from database import Database
 class ResumeScreeningApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("🚀 AI Resume Screening Hub")
-        self.root.geometry("1200x800")
+        self.root.title("🚀 AI Resume Screening Hub - Professional Edition")
+        self.root.geometry("1400x900")
         self.root.resizable(True, True)
         
-        # Modern dark theme colors
+        # Try to maximize window on startup
+        try:
+            self.root.state('zoomed')  # Windows
+        except:
+            try:
+                self.root.attributes('-zoomed', True)  # Linux
+            except:
+                pass  # macOS or other
+        
+        # Enhanced modern dark theme colors
         self.colors = {
             'bg_primary': '#0D1117',      # Dark background
             'bg_secondary': '#161B22',    # Slightly lighter background
@@ -25,11 +34,18 @@ class ResumeScreeningApp:
             'text_secondary': '#8B949E',  # Gray text
             'success': '#238636',         # Green
             'warning': '#D29922',         # Orange
-            'error': '#DA3633'            # Red
+            'error': '#DA3633',           # Red
+            'hover_bg': '#30363D',        # Hover background
+            'border': '#30363D',          # Border color
+            'gradient_start': '#1F2937',  # Gradient start
+            'gradient_end': '#111827'     # Gradient end
         }
         
-        # Configure root window
+        # Configure root window with enhanced styling
         self.root.configure(bg=self.colors['bg_primary'])
+        
+        # Set minimum window size
+        self.root.minsize(1200, 800)
         
         # Configure modern styles
         self.setup_styles()
@@ -262,41 +278,59 @@ class ResumeScreeningApp:
         return result[0]
     
     def setup_ui(self):
-        # Create header
-        header_frame = tk.Frame(self.root, bg=self.colors['bg_primary'], height=80)
-        header_frame.pack(fill=tk.X, padx=20, pady=(20, 0))
+        # Create enhanced header with gradient-like effect
+        header_frame = tk.Frame(self.root, bg=self.colors['bg_primary'], height=100)
+        header_frame.pack(fill=tk.X, padx=25, pady=(25, 0))
         header_frame.pack_propagate(False)
         
-        # App title with icon
-        title_label = tk.Label(header_frame, text="🚀 AI Resume Screening Hub",
-                              bg=self.colors['bg_primary'], fg=self.colors['text_primary'],
-                              font=('Segoe UI', 24, 'bold'))
-        title_label.pack(side=tk.LEFT, pady=20)
+        # Main title section
+        title_section = tk.Frame(header_frame, bg=self.colors['bg_primary'])
+        title_section.pack(side=tk.LEFT, fill=tk.Y)
         
-        # Subtitle
-        subtitle_label = tk.Label(header_frame, text="Intelligent candidate screening powered by AI",
+        # App title with enhanced styling
+        title_label = tk.Label(title_section, text="🚀 AI RESUME SCREENING HUB",
+                              bg=self.colors['bg_primary'], fg=self.colors['accent_primary'],
+                              font=('Segoe UI', 28, 'bold'))
+        title_label.pack(anchor='w', pady=(25, 5))
+        
+        # Enhanced subtitle with version info
+        subtitle_label = tk.Label(title_section, text="Intelligent Candidate Screening Platform v2.0 | Powered by Advanced AI",
                                  bg=self.colors['bg_primary'], fg=self.colors['text_secondary'],
-                                 font=('Segoe UI', 12))
-        subtitle_label.pack(side=tk.LEFT, padx=(20, 0), pady=20)
+                                 font=('Segoe UI', 13, 'italic'))
+        subtitle_label.pack(anchor='w')
         
-        # Main container
+        # Status indicator section
+        status_section = tk.Frame(header_frame, bg=self.colors['bg_primary'])
+        status_section.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 20))
+        
+        # System status indicator
+        status_frame = tk.Frame(status_section, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        status_frame.pack(pady=30)
+        
+        status_label = tk.Label(status_frame, text="🟢 SYSTEM ONLINE",
+                               bg=self.colors['bg_tertiary'], fg=self.colors['success'],
+                               font=('Segoe UI', 11, 'bold'))
+        status_label.pack(padx=15, pady=8)
+        
+        # Enhanced main container with better spacing
         main_container = tk.Frame(self.root, bg=self.colors['bg_primary'])
-        main_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        main_container.pack(fill=tk.BOTH, expand=True, padx=25, pady=25)
         
-        # Create notebook for tabs
+        # Create enhanced notebook for tabs
         self.notebook = ttk.Notebook(main_container, style='Modern.TNotebook')
         self.notebook.pack(fill=tk.BOTH, expand=True)
         
-        # Create tabs with modern frames
+        # Create tabs with modern frames and enhanced spacing
         self.upload_tab = self.create_modern_frame(self.notebook)
         self.search_tab = self.create_modern_frame(self.notebook)
         self.keywords_tab = self.create_modern_frame(self.notebook)
         
-        self.notebook.add(self.upload_tab, text="📁 Upload Resumes")
-        self.notebook.add(self.search_tab, text="🔍 Search Resumes")
-        self.notebook.add(self.keywords_tab, text="⚙️ Manage Keywords")
+        # Add tabs with enhanced icons and descriptions
+        self.notebook.add(self.upload_tab, text="📁 Upload & Process")
+        self.notebook.add(self.search_tab, text="🔍 Smart Search")
+        self.notebook.add(self.keywords_tab, text="⚙️ Keyword Manager")
         
-        # Setup each tab
+        # Setup each tab with enhanced functionality
         self.setup_upload_tab()
         self.setup_search_tab()
         self.setup_keywords_tab()
@@ -775,7 +809,7 @@ class ResumeScreeningApp:
         # Get search keywords
         search_text = self.search_entry.get().strip()
         if not search_text:
-            messagebox.showinfo("Info", "Please enter search keywords")
+            self.show_modern_warning("⚠️ Search Required", "Please enter keywords to search for resumes.")
             return
         
         # Split into individual keywords
@@ -788,10 +822,13 @@ class ResumeScreeningApp:
         # Search resumes
         results = self.db.search_resumes(keywords)
         
-        # Display results
-        for result in results:
-            resume_id, name, email, phone, score = result
-            self.results_tree.insert("", tk.END, values=(resume_id, name, email, phone, f"{score:.2f}"))
+        # Display results with enhanced feedback
+        if results:
+            for result in results:
+                resume_id, name, email, phone, score = result
+                self.results_tree.insert("", tk.END, values=(resume_id, name, email, phone, f"{score:.2f}"))
+        else:
+            self.show_modern_warning("🔍 No Results", "No resumes found matching the specified keywords.")
     
     def view_search_result(self, event):
         # Get selected item
@@ -862,7 +899,7 @@ class ResumeScreeningApp:
         weight_str = self.weight_entry.get().strip()
         
         if not keyword:
-            messagebox.showinfo("Info", "Please enter a keyword")
+            self.show_modern_warning("⚠️ Input Required", "Please enter a keyword before adding.")
             return
         
         try:
@@ -870,7 +907,7 @@ class ResumeScreeningApp:
             if weight < 1 or weight > 10:
                 raise ValueError("Weight must be between 1 and 10")
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            self.show_modern_error("❌ Invalid Input", str(e))
             return
         
         # Add to database
@@ -883,22 +920,30 @@ class ResumeScreeningApp:
         self.keyword_entry.delete(0, tk.END)
         self.weight_entry.delete(0, tk.END)
         self.weight_entry.insert(0, "5")
+        
+        self.show_modern_success("✅ Keyword Added", f"Keyword '{keyword}' with weight {weight} added successfully!")
     
     def delete_keyword(self):
         # Get selected item
         selection = self.keywords_tree.selection()
         if not selection:
-            messagebox.showinfo("Info", "Please select a keyword to delete")
+            self.show_modern_warning("⚠️ Selection Required", "Please select a keyword to delete.")
             return
         
         item = selection[0]
-        keyword_id = self.keywords_tree.item(item, "values")[0]
+        keyword_values = self.keywords_tree.item(item, "values")
+        keyword_id = keyword_values[0]
+        keyword_text = keyword_values[1]
         
-        # Delete from database
-        self.db.delete_keyword(keyword_id)
-        
-        # Delete from treeview
-        self.keywords_tree.delete(item)
+        # Confirm deletion
+        if self.show_modern_confirm("🗑️ Confirm Deletion", f"Are you sure you want to delete '{keyword_text}'?"):
+            # Delete from database
+            self.db.delete_keyword(keyword_id)
+            
+            # Delete from treeview
+            self.keywords_tree.delete(item)
+            
+            self.show_modern_success("✅ Keyword Deleted", f"Keyword '{keyword_text}' deleted successfully!")
     
     def load_keywords(self):
         # Clear treeview
