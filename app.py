@@ -674,10 +674,11 @@ class ResumeScreeningApp:
         # Get all resumes from database
         resumes = self.db.get_all_resumes()
         
-        # Add to listbox
+        # Add to listbox with modern formatting
         for resume in resumes:
             resume_id, filename, name, email, phone, _ = resume
-            self.resume_listbox.insert(tk.END, f"{name} - {email}")
+            display_text = f"📄 {name} | 📧 {email} | 📱 {phone}"
+            self.resume_listbox.insert(tk.END, display_text)
     
     def view_resume_details(self, event):
         # Get selected index
@@ -695,52 +696,80 @@ class ResumeScreeningApp:
         resume = resumes[index]
         resume_id, filename, name, email, phone, text = resume
         
-        # Create popup window
+        # Create modern popup window
         popup = tk.Toplevel(self.root)
-        popup.title(f"Resume: {name}")
-        popup.geometry("600x500")
+        popup.title(f"📄 Resume Details - {name}")
+        popup.geometry("800x600")
+        popup.configure(bg=self.colors['bg_primary'])
         
-        # Resume details
-        details_frame = tk.Frame(popup, pady=10)
-        details_frame.pack(fill=tk.X)
+        # Header
+        header = tk.Frame(popup, bg=self.colors['bg_primary'], height=80)
+        header.pack(fill=tk.X, padx=20, pady=(20, 0))
+        header.pack_propagate(False)
         
-        tk.Label(details_frame, text=f"Name: {name}", font=("Arial", 12, "bold")).pack(anchor="w", padx=10)
-        tk.Label(details_frame, text=f"Email: {email}").pack(anchor="w", padx=10)
-        tk.Label(details_frame, text=f"Phone: {phone}").pack(anchor="w", padx=10)
-        tk.Label(details_frame, text=f"File: {filename}").pack(anchor="w", padx=10)
+        title_label = tk.Label(header, text=f"📄 {filename}",
+                              bg=self.colors['bg_primary'], fg=self.colors['text_primary'],
+                              font=('Segoe UI', 18, 'bold'))
+        title_label.pack(side=tk.LEFT, pady=20)
         
-        # Keywords matches
-        tk.Label(details_frame, text="Keyword Matches:", font=("Arial", 10, "bold")).pack(anchor="w", padx=10, pady=(10, 0))
+        # Content frame
+        content_frame = self.create_modern_frame(popup)
+        content_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Info section
+        info_frame = tk.Frame(content_frame, bg=self.colors['bg_tertiary'])
+        info_frame.pack(fill=tk.X, padx=20, pady=(20, 10))
+        
+        info_title = self.create_modern_label(info_frame, "👤 Candidate Information", 14, True)
+        info_title.pack(anchor='w', padx=20, pady=(15, 10))
+        
+        info_text = f"👤 Name: {name}\n📧 Email: {email}\n📱 Phone: {phone}"
+        info_label = self.create_modern_label(info_frame, info_text, 11, color=self.colors['text_secondary'])
+        info_label.pack(anchor='w', padx=20, pady=(0, 10))
+        
+        # Keywords section
+        keywords_title = self.create_modern_label(info_frame, "🏷️ Keyword Matches", 12, True)
+        keywords_title.pack(anchor='w', padx=20, pady=(10, 5))
         
         # Get keyword matches
         keyword_matches = self.db.get_keyword_matches(resume_id)
         
-        keywords_text = ""
-        for keyword, count, weight in keyword_matches:
-            keywords_text += f"{keyword} (Count: {count}, Weight: {weight})\n"
-        
-        if not keywords_text:
+        if keyword_matches:
+            keywords_text = ""
+            for keyword, count, weight in keyword_matches:
+                keywords_text += f"• {keyword} (Count: {count}, Weight: {weight})\n"
+        else:
             keywords_text = "No keyword matches found."
         
-        keywords_label = tk.Label(details_frame, text=keywords_text, justify=tk.LEFT)
-        keywords_label.pack(anchor="w", padx=10)
+        keywords_label = self.create_modern_label(info_frame, keywords_text, 10, color=self.colors['text_secondary'])
+        keywords_label.pack(anchor='w', padx=20, pady=(0, 15))
         
-        # Resume text
-        text_frame = tk.Frame(popup)
-        text_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # Content section
+        content_title = self.create_modern_label(content_frame, "📝 Resume Content", 14, True)
+        content_title.pack(anchor='w', padx=20, pady=(10, 5))
         
-        tk.Label(text_frame, text="Resume Content:", font=("Arial", 10, "bold")).pack(anchor="w")
+        # Text widget container
+        text_container = tk.Frame(content_frame, bg=self.colors['bg_tertiary'])
+        text_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
         
-        # Text widget with scrollbar
-        scrollbar = tk.Scrollbar(text_frame)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # Modern scrollbar and text widget
+        scrollbar = tk.Scrollbar(text_container, bg=self.colors['bg_secondary'], troughcolor=self.colors['bg_primary'])
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
         
-        text_widget = tk.Text(text_frame, wrap=tk.WORD, yscrollcommand=scrollbar.set)
+        text_widget = tk.Text(text_container, 
+                             yscrollcommand=scrollbar.set, 
+                             wrap=tk.WORD,
+                             bg=self.colors['bg_secondary'],
+                             fg=self.colors['text_primary'],
+                             font=('Segoe UI', 10),
+                             relief='flat',
+                             borderwidth=0,
+                             insertbackground=self.colors['text_primary'])
         text_widget.pack(fill=tk.BOTH, expand=True)
         scrollbar.config(command=text_widget.yview)
         
         text_widget.insert(tk.END, text)
-        text_widget.config(state=tk.DISABLED)  # Make read-only
+        text_widget.config(state=tk.DISABLED)
     
     def search_resumes(self):
         # Get search keywords
